@@ -25,6 +25,7 @@ html, body { height: 100%; overflow: hidden; }
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  pointer-events: auto;
 }
 
 #world-wrap::after {
@@ -36,12 +37,35 @@ html, body { height: 100%; overflow: hidden; }
   z-index: 40;
 }
 
+/* ---------- PARALLAX BACKGROUND ---------- */
+#game-bg {
+  position: fixed;
+  inset: -40px;
+  background: url('assets/textures/landing-bg.png') center/cover no-repeat;
+  image-rendering: pixelated;
+  z-index: 0;
+  opacity: 0.9;
+  pointer-events: none;
+  transition: transform 0.3s ease-out;
+}
+
 /* ---------- TILE GRID ---------- */
 #world {
   display: grid;
   grid-template-columns: repeat(var(--world-cols), var(--tile-size));
   margin-top: 38vh;
   box-shadow: 0 -4px 30px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 1;
+}
+
+#world::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(255,255,240,0.12), transparent 40%);
+  pointer-events: none;
+  z-index: 5;
 }
 
 /* ---------- TILES ---------- */
@@ -68,8 +92,12 @@ html, body { height: 100%; overflow: hidden; }
 .tile-sand   { background-image: url('assets/textures/sand.png'); }
 .tile-water  { background-image: url('assets/textures/water.png'); }
 .tile-ore    { background-image: url('assets/textures/ore.png'); }
-.tile-empty  { background-image: url('assets/textures/empty.png'); cursor: default; }
-.tile-sky    { background: transparent; cursor: default; }
+.tile-sky    { background: transparent; }
+.tile-cave   { background-image: url('assets/textures/empty.png'); }
+.tile-snow   { background-image: url('assets/textures/snow.png'); }
+.tile-ice    { background-image: url('assets/textures/ice.png'); }
+.tile-cactus { background-image: url('assets/textures/cactus.png'); }
+
 /* depth-lighting overlay */
 .tile::after {
   content: '';
@@ -80,13 +108,29 @@ html, body { height: 100%; overflow: hidden; }
   pointer-events: none;
   transition: opacity 0.2s;
 }
+
+/* mining crack overlay */
+.tile.mining::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 3;
+}
+.tile.crack-1::before { background-image: url('assets/textures/crack1.png'); }
+.tile.crack-2::before { background-image: url('assets/textures/crack2.png'); }
+.tile.crack-3::before { background-image: url('assets/textures/crack3.png'); }
+.tile.crack-4::before { background-image: url('assets/textures/crack4.png'); }
+
 /* ---------- FLOATING DOCK ---------- */
 #dock {
   position: fixed;
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 50;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -132,6 +176,22 @@ html, body { height: 100%; overflow: hidden; }
   border-color: #ffe066;
   box-shadow: 0 0 0 3px #ffe066, 0 0 18px #ffe066;
 }
+
+/* ---------- BIOME BUTTONS ---------- */
+.biome-btn {
+  width: 56px; height: 42px;
+  font-size: 20px;
+  background: #dcdcdc;
+  border-top: 3px solid #fff;
+  border-left: 3px solid #fff;
+  border-right: 3px solid #8a8a8a;
+  border-bottom: 3px solid #8a8a8a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+.biome-btn:hover { transform: translateY(-2px); }
+.biome-btn.selected { background: #fff6c2; border-color: #ffe066; box-shadow: 0 0 0 2px #ffe066; }
 
 /* ---------- INVENTORY PANEL ---------- */
 #inventory {
@@ -188,7 +248,7 @@ html, body { height: 100%; overflow: hidden; }
   text-align: center; padding: 0 3px;
 }
 
-/* ---------- WRONG-TOOL SHAKE ---------- */
+/* ---------- ANIMATIONS ---------- */
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
@@ -196,9 +256,6 @@ html, body { height: 100%; overflow: hidden; }
 }
 .shake { animation: shake 0.3s; }
 
-
-
-/* ---------- PARTICLES ---------- */
 .particle {
   position: fixed;
   width: 6px;
@@ -208,20 +265,17 @@ html, body { height: 100%; overflow: hidden; }
   image-rendering: pixelated;
   animation: particle-fly 0.6s ease-out forwards;
 }
-
 @keyframes particle-fly {
   0%   { transform: translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
 }
 
-/* ---------- BREAK POP ---------- */
 @keyframes break-pop {
   0%   { transform: scale(1); filter: brightness(2); }
   100% { transform: scale(0.6); opacity: 0; }
 }
 .breaking { animation: break-pop 0.09s ease-out forwards; z-index: 3; }
 
-/* ---------- SCREEN SHAKE ---------- */
 @keyframes screen-shake {
   0%,100% { transform: translate(0,0); }
   25% { transform: translate(-3px, 2px); }
@@ -230,21 +284,17 @@ html, body { height: 100%; overflow: hidden; }
 }
 .shaking { animation: screen-shake 0.2s; }
 
-
-
 /* ==================================================================
    LANDING PAGE  (scoped to .landing-body so it can't touch the game)
    ================================================================== */
 .landing-body {
   height: auto;
-  overflow-y: auto;                 /* landing page CAN scroll */
+  overflow-y: auto;
   background: #10131a;
   color: #fff;
   font-family: 'Press Start 2P', monospace;
 }
 
-/* ---- HERO ---- */
-/* ---- CINEMATIC HERO ---- */
 .landing-body .hero {
   position: relative;
   height: 100vh;
@@ -257,7 +307,6 @@ html, body { height: 100%; overflow: hidden; }
   overflow: hidden;
 }
 
-/* the panorama — slightly oversized so parallax has room to move */
 .landing-body .hero-parallax {
   position: absolute;
   inset: -40px;
@@ -267,7 +316,6 @@ html, body { height: 100%; overflow: hidden; }
   will-change: transform;
 }
 
-/* soft fade from image into the dark page below */
 .landing-body .hero-fade {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -356,101 +404,6 @@ html, body { height: 100%; overflow: hidden; }
   50%     { transform: translateX(-50%) translateY(6px); }
 }
 
-/* drifting clouds */
-.landing-body .clouds { position: absolute; inset: 0; pointer-events: none; }
-.landing-body .cloud {
-  position: absolute;
-  background: rgba(255,255,255,0.9);
-  box-shadow:
-    28px 0 0 rgba(255,255,255,0.9),
-    56px 0 0 rgba(255,255,255,0.9),
-    28px -20px 0 rgba(255,255,255,0.9);
-  width: 40px; height: 24px;
-  border-radius: 4px;
-  animation: drift linear infinite;
-}
-.landing-body .c1 { top: 16%; left: -120px; animation-duration: 34s; }
-.landing-body .c2 { top: 32%; left: -200px; animation-duration: 48s; transform: scale(1.5); }
-.landing-body .c3 { top: 12%; left: -160px; animation-duration: 60s; transform: scale(0.8); }
-
-@keyframes drift {
-  from { transform: translateX(0); }
-  to   { transform: translateX(120vw); }
-}
-
-/* ---- HERO CONTENT ---- */
-.landing-body .hero-content { position: relative; z-index: 2; }
-
-.landing-body .hero-icon {
-  width: 90px; height: 90px;
-  image-rendering: pixelated;
-  margin-bottom: 18px;
-  filter: drop-shadow(0 6px 0 rgba(0,0,0,0.3));
-  animation: bob 2.4s ease-in-out infinite;
-}
-
-@keyframes bob {
-  0%,100% { transform: translateY(0) rotate(-6deg); }
-  50%     { transform: translateY(-12px) rotate(6deg); }
-}
-
-.landing-body .logo {
-  font-size: 46px;
-  line-height: 1.3;
-  color: #fff;
-  text-shadow: 4px 4px 0 #2a5d2a, 8px 8px 0 rgba(0,0,0,0.25);
-  letter-spacing: 2px;
-}
-.landing-body .logo span { color: #ffe066; }
-
-.landing-body .tagline {
-  font-size: 12px;
-  margin: 20px 0 34px;
-  color: #eaf6ff;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
-}
-
-/* ---- PLAY BUTTON ---- */
-.landing-body .play-btn {
-  display: inline-block;
-  background: #6abe30;
-  color: #fff;
-  text-decoration: none;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 20px;
-  padding: 20px 46px;
-  border-top: 5px solid #8ce04f;
-  border-left: 5px solid #8ce04f;
-  border-right: 5px solid #3f7a1c;
-  border-bottom: 5px solid #3f7a1c;
-  box-shadow: 0 8px 0 #2f5e14, 0 0 30px rgba(106,190,48,0.6);
-  animation: pulse 1.8s ease-in-out infinite;
-  transition: transform 0.08s;
-}
-.landing-body .play-btn.small { font-size: 13px; padding: 14px 28px; animation: none; }
-.landing-body .play-btn:hover { transform: translateY(-2px); }
-.landing-body .play-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #2f5e14; }
-
-@keyframes pulse {
-  0%,100% { box-shadow: 0 8px 0 #2f5e14, 0 0 24px rgba(106,190,48,0.5); }
-  50%     { box-shadow: 0 8px 0 #2f5e14, 0 0 44px rgba(106,190,48,0.9); }
-}
-
-.landing-body .scroll-hint {
-  position: absolute;
-  bottom: 26px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: rgba(255,255,255,0.8);
-  z-index: 2;
-  animation: bob-hint 1.6s ease-in-out infinite;
-}
-@keyframes bob-hint {
-  0%,100% { transform: translateX(-50%) translateY(0); }
-  50%     { transform: translateX(-50%) translateY(6px); }
-}
-
-/* ---- TUTORIAL ---- */
 .landing-body .tutorial { max-width: 900px; margin: 0 auto; padding: 60px 20px; }
 
 .landing-body .guide {
@@ -514,31 +467,3 @@ html, body { height: 100%; overflow: hidden; }
   color: #d4dae2;
 }
 .landing-body .steps strong { color: #ffe066; }
-
-/* soft ambient light from above the world */
-#world {
-  position: relative;
-}
-#world::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(255,255,240,0.12), transparent 40%);
-  pointer-events: none;
-  z-index: 5;
-}
-
-/* mining crack overlay */
-.tile.mining::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-size: 100% 100%;
-  image-rendering: pixelated;
-  pointer-events: none;
-  z-index: 3;
-}
-.tile.crack-1::before { background-image: url('assets/textures/crack1.png'); }
-.tile.crack-2::before { background-image: url('assets/textures/crack2.png'); }
-.tile.crack-3::before { background-image: url('assets/textures/crack3.png'); }
-.tile.crack-4::before { background-image: url('assets/textures/crack4.png'); }
