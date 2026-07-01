@@ -1,16 +1,15 @@
 const Game = {
-  COLS: 20,
-  ROWS: 14,
-  SKY_ROWS: 4,
+  COLS: 24,
+  ROWS: 18,
+  SKY_ROWS: 5,
 
   world: [],
+  heights: [],
   selectedTool: null,
   selectedInventoryType: null,
   inventory: {},
   seed: null,
   audioCtx: null,
-
-  toolTileMap: { axe: 'tree', pickaxe: 'rock', shovel: 'dirt' },
 
   // ---- seeded RNG ----
   makeRng(seed) {
@@ -26,35 +25,40 @@ const Game = {
   // ---- procedural generation ----
   generateWorld(seed) {
     const rng = this.makeRng(seed);
-    const w = [];
-    let surface = this.SKY_ROWS + 2;
+    this.heights = [];
+    let surface = this.SKY_ROWS + 3;
 
-    const heights = [];
     for (let c = 0; c < this.COLS; c++) {
-      if (rng() < 0.3) surface += rng() < 0.5 ? -1 : 1;
-      surface = Math.max(this.SKY_ROWS + 1, Math.min(surface, this.SKY_ROWS + 4));
-      heights.push(surface);
+      if (rng() < 0.18) surface += rng() < 0.5 ? -1 : 1;
+      surface = Math.max(this.SKY_ROWS + 2, Math.min(surface, this.SKY_ROWS + 4));
+      this.heights.push(surface);
     }
 
+    const w = [];
     for (let r = 0; r < this.ROWS; r++) {
       const row = [];
       for (let c = 0; c < this.COLS; c++) {
-        const ground = heights[c];
-        if (r < ground) row.push('sky');
-        else if (r === ground) row.push('grass');
-        else if (r <= ground + 2) row.push('dirt');
-        else row.push(rng() < 0.08 ? 'ore' : 'rock');
+        const g = this.heights[c];
+        if (r < g) row.push('sky');
+        else if (r === g) row.push('grass');
+        else if (r <= g + 2) row.push('dirt');
+        else row.push(rng() < 0.10 ? 'ore' : 'rock');
       }
       w.push(row);
     }
 
-    for (let c = 0; c < this.COLS; c++) {
-      const ground = heights[c];
-      if (w[ground] && w[ground][c] === 'grass' && rng() < 0.22) {
-        const trunkTop = ground - 1;
-        if (trunkTop > this.SKY_ROWS) {
+    // trees: 2-block trunk + a 3x2 leafy canopy on top
+    let lastTree = -4;
+    for (let c = 1; c < this.COLS - 1; c++) {
+      const g = this.heights[c];
+      if (w[g][c] === 'grass' && c - lastTree >= 3 && rng() < 0.4) {
+        const trunkTop = g - 2, canopyMid = g - 3, canopyTop = g - 4;
+        if (canopyTop >= this.SKY_ROWS) {
+          w[g - 1][c] = 'tree';
           w[trunkTop][c] = 'tree';
-          if (w[trunkTop - 1]) w[trunkTop - 1][c] = 'leaves';
+          for (const dc of [-1, 0, 1]) if (w[canopyMid][c + dc] === 'sky') w[canopyMid][c + dc] = 'leaves';
+          for (const dc of [-1, 0, 1]) if (w[canopyTop][c + dc] === 'sky') w[canopyTop][c + dc] = 'leaves';
+          lastTree = c;
         }
       }
     }
@@ -93,9 +97,7 @@ const Game = {
         tile.className = `tile tile-${type}`;
         tile.dataset.row = r;
         tile.dataset.col = c;
-        if (type !== 'sky') {
-          tile.addEventListener('click', (e) => this.clickTile(r, c, e));
-        }
+        tile.addEventListener('click', (e) => this.clickTile(r, c, e));
         this.worldEl.appendChild(tile);
       });
     });
@@ -119,24 +121,29 @@ const Game = {
     const groups = {
       axe: ['tree', 'leaves'],
       pickaxe: ['rock', 'ore'],
-      shovel: ['dirt', 'sand'],
+      shovel: ['dirt', 'sand', 'grass'],
     };
     return groups[tool] && groups[tool].includes(type);
+  },
+
+  isEmpty(type) {
+    return type === 'sky' || type === 'cave';
   },
 
   // ---- clicking ----
   clickTile(row, col, e) {
     const type = this.world[row][col];
 
+    // placing from inventory onto an empty spot (sky or cave)
     if (this.selectedInventoryType) {
-      if (type === 'empty') this.placeFromInventory(row, col);
+      if (this.isEmpty(type)) this.placeFromInventory(row, col);
       return;
     }
     if (!this.selectedTool) return;
 
     if (this.canBreak(this.selectedTool, type)) {
       this.removeTile(row, col, type, e);
-    } else if (type !== 'empty' && type !== 'sky') {
+    } else if (!this.isEmpty(type)) {
       this.wrongTool(row, col);
     }
   },
@@ -149,11 +156,20 @@ const Game = {
     this.screenShake();
     this.playSound('break');
 
-    this.world[row][col] = 'empty';
-    this.addToInventory(type);
+    this.world[row][col] = this.revealType(row, col);
 
+    this.addToInventory(type);
     tileEl.classList.add('breaking');
     setTimeout(() => { this.renderWorld(); this.renderInventory(); }, 90);
+  },
+
+  // sky if open to air above, cave if enclosed under solid ground
+  revealType(row, col) {
+    const SOLID = ['grass','dirt','rock','ore','sand','tree','leaves'];
+    for (let r = row - 1; r >= 0; r--) {
+      if (SOLID.includes(this.world[r][col])) return 'cave';
+    }
+    return 'sky';
   },
 
   // ---- juice ----
