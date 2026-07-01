@@ -1,5 +1,5 @@
 # Minecraft 2D
-
+🎮 **[▶ Play it live](https://bsharahaj-minecraft.netlify.app/)**
 A 2D Minecraft-inspired sandbox game built with pure HTML, CSS, and JavaScript.
 Dig blocks with the right tool, collect them in your inventory, and place them
 back to reshape a procedurally-generated world.
