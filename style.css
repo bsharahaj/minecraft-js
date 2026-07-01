@@ -70,7 +70,16 @@ html, body { height: 100%; overflow: hidden; }
 .tile-ore    { background-image: url('assets/textures/ore.png'); }
 .tile-empty  { background-image: url('assets/textures/empty.png'); cursor: default; }
 .tile-sky    { background: transparent; cursor: default; }
-
+/* depth-lighting overlay */
+.tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: var(--shade, 0);
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
 /* ---------- FLOATING DOCK ---------- */
 #dock {
   position: fixed;
@@ -505,3 +514,16 @@ html, body { height: 100%; overflow: hidden; }
   color: #d4dae2;
 }
 .landing-body .steps strong { color: #ffe066; }
+
+/* soft ambient light from above the world */
+#world {
+  position: relative;
+}
+#world::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(255,255,240,0.12), transparent 40%);
+  pointer-events: none;
+  z-index: 5;
+}

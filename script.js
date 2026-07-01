@@ -87,7 +87,7 @@ const Game = {
   },
 
   // ---- rendering ----
-  renderWorld() {
+ renderWorld() {
     this.worldEl.innerHTML = '';
     document.documentElement.style.setProperty('--world-cols', this.COLS);
 
@@ -97,6 +97,18 @@ const Game = {
         tile.className = `tile tile-${type}`;
         tile.dataset.row = r;
         tile.dataset.col = c;
+
+        // DEPTH LIGHTING: how far below this column's surface is this tile?
+        const ground = this.heights[c];
+        const depth = r - ground;                 // 0 at surface, grows downward
+        if (depth > 0 && type !== 'sky') {
+          // darken gradually, capped so deep blocks aren't pitch black
+          const dark = Math.min(depth * 0.06, 0.55);
+          tile.style.setProperty('--shade', dark);
+        } else {
+          tile.style.setProperty('--shade', 0);
+        }
+
         tile.addEventListener('click', (e) => this.clickTile(r, c, e));
         this.worldEl.appendChild(tile);
       });
