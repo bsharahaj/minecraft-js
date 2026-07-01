@@ -3,49 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft 2D — How to Play</title>
+  <title>Minecraft 2D</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="landing">
+<body class="landing-body">
 
-  <div class="hero">
-    <h1>⛏️ Minecraft 2D</h1>
-    <p class="tagline">Dig the world, collect your blocks, build it back.</p>
-    <a href="game.html" class="play-btn">▶ Play Now</a>
-  </div>
-
-  <section class="guide">
-    <h2>The Three Tools</h2>
-    <div class="tool-cards">
-      <div class="card">
-        <div class="tile tile-tree"></div>
-        <h3>🪓 Axe</h3>
-        <p>Chops down <strong>Tree</strong> tiles.</p>
-      </div>
-      <div class="card">
-        <div class="tile tile-rock"></div>
-        <h3>⛏️ Pickaxe</h3>
-        <p>Mines <strong>Rock</strong> tiles.</p>
-      </div>
-      <div class="card">
-        <div class="tile tile-dirt"></div>
-        <h3>🥄 Shovel</h3>
-        <p>Digs <strong>Dirt</strong> tiles.</p>
-      </div>
+  <!-- HERO / TITLE SCREEN -->
+  <header class="hero">
+    <div class="clouds">
+      <span class="cloud c1"></span>
+      <span class="cloud c2"></span>
+      <span class="cloud c3"></span>
     </div>
-  </section>
 
-  <section class="guide">
-    <h2>How to Play</h2>
-    <ol class="steps">
-      <li>Click a <strong>tool</strong> in the toolbar — it lights up.</li>
-      <li>Click a <strong>tile</strong> in the world.</li>
-      <li>If the tool matches the tile, the tile is removed.</li>
-      <li>Removed tiles go into your <strong>inventory</strong>.</li>
-      <li>Click an inventory tile, then an empty spot, to <strong>place it back</strong>.</li>
-    </ol>
-    <a href="game.html" class="play-btn">▶ Start Playing</a>
-  </section>
+    <div class="hero-content">
+      <img src="assets/textures/tool-pickaxe.png" alt="" class="hero-icon">
+      <h1 class="logo">MINECRAFT <span>2D</span></h1>
+      <p class="tagline">Dig the world. Collect your blocks. Build it back.</p>
+      <a href="game.html" class="play-btn">▶ PLAY</a>
+    </div>
+
+    <div class="scroll-hint">▼ how to play</div>
+  </header>
+
+  <!-- TUTORIAL -->
+  <main class="tutorial">
+
+    <section class="guide">
+      <h2>The Three Tools</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icons">
+            <img src="assets/textures/tool-axe.png" alt="Axe">
+            <div class="tile tile-tree"></div>
+          </div>
+          <h3>Axe</h3>
+          <p>Chops down <strong>Tree</strong> &amp; <strong>Leaf</strong> blocks.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icons">
+            <img src="assets/textures/tool-pickaxe.png" alt="Pickaxe">
+            <div class="tile tile-rock"></div>
+          </div>
+          <h3>Pickaxe</h3>
+          <p>Mines <strong>Rock</strong> &amp; <strong>Ore</strong> blocks.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icons">
+            <img src="assets/textures/tool-shovel.png" alt="Shovel">
+            <div class="tile tile-dirt"></div>
+          </div>
+          <h3>Shovel</h3>
+          <p>Digs <strong>Dirt</strong> &amp; <strong>Sand</strong> blocks.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide">
+      <h2>How to Play</h2>
+      <ol class="steps">
+        <li>Pick a <strong>tool</strong> from the left dock — it lights up.</li>
+        <li>Click a matching <strong>block</strong> in the world to break it.</li>
+        <li>Broken blocks burst into your <strong>inventory</strong> (the chest).</li>
+        <li>Open the chest, pick a block, then click an empty spot to <strong>place it</strong>.</li>
+        <li>Hit <strong>↻ Reset</strong> anytime to regenerate the world.</li>
+      </ol>
+      <a href="game.html" class="play-btn small">▶ START PLAYING</a>
+    </section>
+
+  </main>
 
 </body>
 </html>
