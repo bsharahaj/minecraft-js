@@ -6,31 +6,49 @@
   <title>Minecraft 2D</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="game-body">
 
-  <h1>Minecraft 2D</h1>
+  <div id="game-screen">
 
-  <!-- Toolbar: 3 tools. data-tool tells JS which tool this is -->
-  <div id="toolbar">
-    <div class="tool" data-tool="axe">🪓 Axe</div>
-    <div class="tool" data-tool="pickaxe">⛏️ Pickaxe</div>
-    <div class="tool" data-tool="shovel">🥄 Shovel</div>
+    <!-- LEFT DOCK: controls float over the world -->
+    <aside id="dock">
+      <div class="dock-group">
+        <a href="index.html" class="dock-btn system" title="Home">🏠</a>
+        <button id="reset-btn" class="dock-btn system" title="Reset World">↻</button>
+      </div>
+
+      <div class="dock-group">
+        <div class="tool dock-btn" data-tool="axe" title="Axe — chops trees">
+          <img src="assets/textures/tool-axe.png" alt="Axe">
+        </div>
+        <div class="tool dock-btn" data-tool="pickaxe" title="Pickaxe — mines rock & ore">
+          <img src="assets/textures/tool-pickaxe.png" alt="Pickaxe">
+        </div>
+        <div class="tool dock-btn" data-tool="shovel" title="Shovel — digs dirt & sand">
+          <img src="assets/textures/tool-shovel.png" alt="Shovel">
+        </div>
+      </div>
+
+      <div class="dock-group">
+        <div id="inv-toggle" class="dock-btn" title="Inventory">
+          <img src="assets/textures/tool-chest.png" alt="Inventory">
+        </div>
+      </div>
+    </aside>
+
+    <!-- WORLD: fills the screen -->
+    <main id="world-wrap">
+      <div id="world"></div>
+    </main>
+
+    <!-- INVENTORY PANEL: toggled by the chest -->
+    <div id="inventory" class="hidden">
+      <h3>Inventory</h3>
+      <div id="inventory-items"></div>
+    </div>
+
   </div>
 
-  <!-- World: stays EMPTY. JavaScript fills this with tiles -->
-  <div id="world"></div>
-
-  <!-- Inventory: label stays, JS only touches #inventory-items -->
-  <div id="inventory">
-    <h3>Inventory</h3>
-    <div id="inventory-items"></div>
-  </div>
-
-  <!-- Mandatory reset button -->
-  <button id="reset-btn">Reset World</button>
-
-  <!-- Script loads LAST so all elements exist first -->
   <script src="script.js"></script>
-
 </body>
 </html>
