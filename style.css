@@ -1,0 +1,155 @@
+:root {
+  --tile-size: 48px;
+  --world-cols: 10;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #6ab7ff;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  margin-bottom: 16px;
+}
+
+/* ---------- TOOLBAR ---------- */
+#toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tool {
+  background: #3a3a3a;
+  border: 3px solid #222;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.tool:hover {
+  transform: translateY(-2px);
+}
+
+.tool.selected {
+  border-color: #ffe066;
+  box-shadow: 0 0 12px #ffe066;
+  background: #5a5a2a;
+}
+
+/* ---------- WORLD GRID ---------- */
+#world {
+  display: grid;
+  grid-template-columns: repeat(var(--world-cols), var(--tile-size));
+  gap: 2px;
+  justify-content: center;
+  margin: 0 auto 24px;
+  width: fit-content;
+  background: #333;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+/* ---------- TILES ---------- */
+.tile {
+  width: var(--tile-size);
+  height: var(--tile-size);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.tile:hover {
+  filter: brightness(1.15);
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.tile-grass {
+  background: linear-gradient(#6abe30 0 30%, #4a8b23 30% 100%);
+}
+
+.tile-dirt {
+  background: #8b5a2b;
+  background-image:
+    radial-gradient(#6f4520 15%, transparent 16%),
+    radial-gradient(#6f4520 15%, transparent 16%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+
+.tile-rock {
+  background: #8a8a8a;
+  background-image:
+    linear-gradient(135deg, #9a9a9a 25%, transparent 25%),
+    linear-gradient(225deg, #7a7a7a 25%, transparent 25%);
+  background-size: 20px 20px;
+}
+
+.tile-tree {
+  background: #7a4a1e;
+  background-image: linear-gradient(#5c3616 0 100%);
+  border: 2px solid #5c3616;
+}
+
+.tile-empty {
+  background: #2a2a2a;
+  cursor: default;
+}
+
+/* ---------- INVENTORY ---------- */
+#inventory {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 400px;
+  margin: 0 auto 20px;
+}
+
+#inventory h3 {
+  margin-bottom: 12px;
+}
+
+#inventory-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  min-height: var(--tile-size);
+}
+
+#inventory-items .tile {
+  width: 40px;
+  height: 40px;
+}
+
+/* ---------- RESET BUTTON ---------- */
+#reset-btn {
+  background: #c0392b;
+  color: #fff;
+  border: 3px solid #922;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#reset-btn:hover {
+  background: #e74c3c;
+}
