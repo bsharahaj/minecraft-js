@@ -527,3 +527,18 @@ html, body { height: 100%; overflow: hidden; }
   pointer-events: none;
   z-index: 5;
 }
+
+/* mining crack overlay */
+.tile.mining::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 3;
+}
+.tile.crack-1::before { background-image: url('assets/textures/crack1.png'); }
+.tile.crack-2::before { background-image: url('assets/textures/crack2.png'); }
+.tile.crack-3::before { background-image: url('assets/textures/crack3.png'); }
+.tile.crack-4::before { background-image: url('assets/textures/crack4.png'); }

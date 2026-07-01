@@ -118,7 +118,9 @@ const Game = {
           tile.style.setProperty('--shade', 0);
         }
 
-        tile.addEventListener('click', (e) => this.clickTile(r, c, e));
+        tile.addEventListener('mousedown', (e) => this.startMining(r, c, e));
+        tile.addEventListener('mouseup', () => this.stopMining());
+        tile.addEventListener('mouseleave', () => this.stopMining());
         this.worldEl.appendChild(tile);
       });
     });
@@ -168,7 +170,63 @@ const Game = {
       this.wrongTool(row, col);
     }
   },
+  startMining(row, col, e) {
+    const type = this.world[row][col];
 
+    // placing from inventory is still a single click-action
+    if (this.selectedInventoryType) {
+      if (this.isEmpty(type)) this.placeFromInventory(row, col);
+      return;
+    }
+    if (!this.selectedTool) return;
+
+    // wrong tool or empty → no mining
+    if (!this.canBreak(this.selectedTool, type)) {
+      if (!this.isEmpty(type)) this.wrongTool(row, col);
+      return;
+    }
+
+    // begin a mining progress cycle on this tile
+    const index = row * this.COLS + col;
+    const tileEl = this.worldEl.children[index];
+    this.miningTile = { row, col, type, tileEl, e };
+    this.miningProgress = 0;
+
+    tileEl.classList.add('mining');
+    this.playSound('select'); // soft tick when you start
+
+    const DURATION = 500;        // ms to fully break a block
+    const STEP = 60;             // update interval
+    clearInterval(this.miningTimer);
+    this.miningTimer = setInterval(() => {
+      this.miningProgress += STEP / DURATION;
+      const stage = Math.min(4, Math.ceil(this.miningProgress * 4));
+
+      tileEl.classList.remove('crack-1','crack-2','crack-3','crack-4');
+      if (stage >= 1) tileEl.classList.add('crack-' + stage);
+
+      if (this.miningProgress >= 1) {
+        clearInterval(this.miningTimer);
+        this.finishMining();
+      }
+    }, STEP);
+  },
+
+  stopMining() {
+    clearInterval(this.miningTimer);
+    if (this.miningTile) {
+      const { tileEl } = this.miningTile;
+      tileEl.classList.remove('mining','crack-1','crack-2','crack-3','crack-4');
+      this.miningTile = null;
+    }
+    this.miningProgress = 0;
+  },
+
+  finishMining() {
+    const { row, col, type, e } = this.miningTile;
+    this.miningTile = null;
+    this.removeTile(row, col, type, e);
+  },
   removeTile(row, col, type, e) {
     const index = row * this.COLS + col;
     const tileEl = this.worldEl.children[index];
