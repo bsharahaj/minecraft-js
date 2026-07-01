@@ -9,12 +9,9 @@
 <body class="landing-body">
 
   <!-- HERO / TITLE SCREEN -->
-  <header class="hero">
-    <div class="clouds">
-      <span class="cloud c1"></span>
-      <span class="cloud c2"></span>
-      <span class="cloud c3"></span>
-    </div>
+ <header class="hero" id="hero">
+    <div class="hero-parallax" id="heroBg"></div>
+    <div class="hero-fade"></div>
 
     <div class="hero-content">
       <img src="assets/textures/tool-pickaxe.png" alt="" class="hero-icon">
@@ -74,6 +71,17 @@
     </section>
 
   </main>
-
+    <script>
+    const bg = document.getElementById('heroBg');
+    const hero = document.getElementById('hero');
+    hero.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;   // max 30px drift
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      bg.style.transform = `translate(${x}px, ${y}px) scale(1.06)`;
+    });
+    hero.addEventListener('mouseleave', () => {
+      bg.style.transform = 'translate(0,0) scale(1.06)';
+    });
+  </script>
 </body>
 </html>
